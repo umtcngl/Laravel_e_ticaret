@@ -27,6 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/anasayfa', [MusteriController::class, 'anasayfa'])->name('musteri.anasayfa');
     Route::get('/kategori/{id}', [MusteriController::class, 'kategoriDetay'])->name('kategori.detay');
     Route::get('/urun/{id}', [MusteriController::class, 'urunDetay'])->name('urun.detay');
+    Route::post('/urun/{id}/yorum-yap', [MusteriController::class, 'yorumYap'])->name('yorum.yap');
+
     Route::post('/sepet/ekle/{urunId}', [MusteriController::class, 'sepeteEkle'])->name('sepet.ekle');
     Route::get('/sepet', [MusteriController::class, 'sepet'])->name('sepet');
     Route::post('/sepet/arttir/{id}', [MusteriController::class, 'arttir'])->name('sepet.arttir');
@@ -38,6 +40,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/siparislerim/siparis/sil/{id}', [MusteriController::class, 'siparis_sil'])->name('siparis.iptal');
     Route::post('/satici/siparis/durum-guncelle/{id}', 'SaticiController@siparisDurumGuncelle')->name('satici.siparis.durum.guncelle');
 
+    Route::get('/search-live', [MusteriController::class, 'searchLive'])->name('search.live');
+    Route::get('/arama-sonuclari', [MusteriController::class, 'aramaSonuclari'])->name('arama.sonuclari');
+
+    Route::get('/hesap-gecmisi', [MusteriController::class, 'hesapGecmisi'])->name('hesap.gecmisi');
 
     Route::get('/ayarlar', [MusteriController::class, 'ayarlar'])->name('ayarlar');
     Route::post('/ayarlar/guncelle', [MusteriController::class, 'ayarlarGuncelle'])->name('ayarlar.guncelle');

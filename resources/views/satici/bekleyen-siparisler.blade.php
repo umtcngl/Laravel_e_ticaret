@@ -36,7 +36,7 @@
                                     <div class="d-flex">
                                         <h5 class="me-5">Detaylı Sipariş</h5>
                                         <div class="dropup">
-                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton_{{ $siparis->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton_{{ $siparis->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 {{ $siparis->durum }}
                                             </button>
                                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton_{{ $siparis->id }}">

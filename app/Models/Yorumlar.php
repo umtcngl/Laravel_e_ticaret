@@ -12,6 +12,7 @@ class Yorumlar extends Model
         'kullanici_id',
         'urun_id',
         'icerik',
+        'puan', // Yeni eklenen sütun
     ];
 
     public function kullanici()

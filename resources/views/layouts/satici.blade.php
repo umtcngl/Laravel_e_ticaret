@@ -8,6 +8,14 @@
             <i class="fas fa-tachometer-alt me-2"></i>
             <span class="fw-bold">Satıcı Dashboard</span>
         </a>
+        <span class="nav-link">
+            <i class="fas fa-user me-2" style="color: #007bff;"></i>
+            <span style="color: #007bff;">{{ $kullaniciAdi }}</span>
+        </span>
+        <span class="nav-link">
+            <i class="fas fa-wallet me-2" style="color: #28a745;"></i>
+            <span style="color: #28a745;">{{ $bakiye }} ₺</span>
+        </span>
         <div class="navbar-nav ml-auto">
             <a class="nav-link btn text-primary me-3" href="{{ route('satici.urunlerim') }}">
                 <i class="fas fa-shopping-bag"></i> Ürünlerim
@@ -21,6 +29,10 @@
             </a>
             <a class="nav-link btn text-success me-3" href="{{ route('satici.satislarim') }}">
                 <i class="fas fa-dollar-sign"></i> Satışlarım
+                <span class="badge bg-success rounded-circle position-absolute top-0 start-100 translate-middle">
+                    {{ $teslimEdilenSiparisSayisi }}
+                    <span class="visually-hidden">Satışlarım</span>
+                </span>
             </a>
             <!-- İstediğiniz ekstra linkleri buraya ekleyebilirsiniz -->
             <form action="{{ route('logout') }}" method="POST" class="d-inline">

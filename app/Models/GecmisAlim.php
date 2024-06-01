@@ -13,6 +13,8 @@ class GecmisAlim extends Model
         'urun_id',
         'miktar',
         'tarih',
+        'toplam_tutar',
+        'satici_id',
     ];
 
     public function kullanici()
@@ -23,5 +25,14 @@ class GecmisAlim extends Model
     public function urun()
     {
         return $this->belongsTo(Urun::class, 'urun_id');
+    }
+
+    public function satici()
+    {
+        return $this->belongsTo(Kullanici::class, 'satici_id');
+    }
+    public function siparisDetaylari()
+    {
+        return $this->hasMany(SiparisDetay::class, 'siparis_id', 'id');
     }
 }

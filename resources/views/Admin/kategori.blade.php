@@ -48,7 +48,7 @@
                                 <tr>
                                     <th scope="row">{{ $urun->id }}</th>
                                     <td>{{ $urun->urunAdi }}</td>
-                                    <td>{{ $urun->aciklama }}</td>
+                                    <td>{{ strlen($urun->aciklama) > 100 ? substr($urun->aciklama, 0, 45) . '...' : $urun->aciklama }}</td>
                                     <td>{{ $urun->fiyat }}₺</td>
                                     <td>{{ $urun->stok }}</td>
                                     <td>{{ $urun->kullanici->kullaniciAdi }}</td>

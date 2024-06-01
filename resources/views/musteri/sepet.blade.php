@@ -24,6 +24,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th>#</th>
+                            <th>Resim</th>
                             <th>Ürün Adı</th>
                             <th>Fiyat</th>
                             <th>Miktar</th>
@@ -35,6 +36,13 @@
                         @foreach($sepet as $item)
                         <tr>
                             <th>{{ $loop->iteration }}</th>
+                            <td>
+                                @if($item->urun->resim_yolu)
+                                                <img src="{{ asset($item->urun->resim_yolu) }}" alt="{{ $item->urun->urunAdi }}" width="50">
+                                            @else
+                                                Resim Yok
+                                            @endif
+                            </td>
                             <td>{{ $item->urun->urunAdi }}</td>
                             <td>{{ $item->urun->fiyat }} ₺</td>
                             <td>{{ $item->miktar }}</td>

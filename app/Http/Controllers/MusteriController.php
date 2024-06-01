@@ -11,22 +11,21 @@ use App\Models\Urun;
 use App\Models\Sepet;
 use App\Models\Siparisler;
 use App\Models\Kullanici;
+use App\Models\Yorumlar;
+USE App\Models\GecmisAlim;
 class MusteriController extends Controller
 {
     public function anasayfa()
     {
-        $kullanici = Auth::user();
-        $kullaniciAdi = $kullanici->kullaniciAdi;
-        $bakiye = $kullanici->bakiye;
-
         // Kategorileri getir
         $kategoriler = Kategori::all();
 
-        // Tüm ürünleri getir
-        $urunler = Urun::all();
+        // Stoğu sıfır olmayan ürünleri getir
+        $urunler = Urun::where('stok', '>', 0)->get();
 
-        return view('musteri.anasayfa', compact('kullaniciAdi', 'bakiye', 'kategoriler', 'urunler'));
+        return view('musteri.anasayfa', compact('kategoriler', 'urunler'));
     }
+
     public function kategoriDetay($id)
     {
         // İlgili kategori bilgilerini ve ürünlerini al
@@ -41,11 +40,44 @@ class MusteriController extends Controller
         $kullanici = Auth::user();
         $kullaniciAdi = $kullanici->kullaniciAdi;
         $bakiye = $kullanici->bakiye;
+
         // İlgili ürün bilgilerini al
         $urun = Urun::findOrFail($id);
 
-        return view('musteri.urun-detay', compact('kullaniciAdi', 'bakiye','urun'));
+        // Kullanıcının daha önce yorum yapmış veya derecelendirme yapmış olup olmadığını kontrol et
+        $yapilmisYorum = Yorumlar::where('kullanici_id', auth()->id())->where('urun_id', $id)->exists();
+
+        // Kullanıcının daha önce belirli bir ürünü satın alıp almadığını kontrol et
+        $dahaOnceAlmisMi = GecmisAlim::where('kullanici_id', auth()->id())->where('urun_id', $id)->exists();
+
+
+        // Ürünün yorumlarını al
+        $yorumlar = $urun->yorumlar;
+
+        return view('musteri.urun-detay', compact('urun', 'kullanici', 'yorumlar','dahaOnceAlmisMi','yapilmisYorum'));
     }
+
+
+
+    public function yorumYap(Request $request, $id)
+    {
+        $request->validate([
+            'icerik' => 'required|string|max:255', // Yorum içeriği doğrulama kuralı
+            'puan' => 'required|integer|min:0|max:10', // Puan doğrulama kuralı
+        ]);
+
+        // Yorumu kaydet
+        $yorum = new Yorumlar();
+        $yorum->kullanici_id = auth()->id();
+        $yorum->urun_id = $id;
+        $yorum->icerik = $request->icerik;
+        $yorum->puan = $request->puan;
+        $yorum->save();
+
+        return redirect()->back()->with('success', 'Yorum başarıyla eklendi.');
+    }
+
+
     public function sepet()
     {
         $kullanici = Auth::user();
@@ -67,7 +99,7 @@ class MusteriController extends Controller
             $toplamTutar += $item->urun->fiyat * $item->miktar;
         }
 
-        return view('musteri.sepet', compact('kullaniciAdi', 'bakiye', 'kategoriler', 'urunler', 'sepet', 'toplamTutar'));
+        return view('musteri.sepet', compact( 'kategoriler', 'urunler', 'sepet', 'toplamTutar'));
     }
 
 
@@ -80,7 +112,9 @@ class MusteriController extends Controller
         // Ürünü al ve ilgili satıcıyı kontrol et
         $urun = Urun::findOrFail($urunId);
         $satici_id = $urun->kullanici_id;
-
+        if ($request->miktar > $urun->stok) {
+            return back()->with('warning', 'Stok miktarını aşan bir miktarı sepete ekleyemezsiniz.');
+        }
         // Sepette farklı satıcılara ait ürün varsa uyarı ver
         $farkliSatıcılar = Sepet::where('kullanici_id', Auth::id())
                                 ->whereHas('urun', function ($query) use ($satici_id) {
@@ -159,15 +193,13 @@ public function kaldir($id)
                     'urun_id' => $urun->id,
                     'miktar' => $item->miktar,
                 ];
-
+                // Kullanıcının bakiyesi yeterli mi kontrol et
+                if ($kullanici->bakiye < $toplamTutar) {
+                    return redirect()->route('sepet')->with('error', 'Bakiyeniz yetersiz olduğu için sipariş oluşturulamadı!');
+                }
                 // Ürün stok miktarını azalt
                 $urun->stok -= $item->miktar;
                 $urun->save();
-            }
-
-            // Kullanıcının bakiyesi yeterli mi kontrol et
-            if ($kullanici->bakiye < $toplamTutar) {
-                return redirect()->route('musteri.anasayfa')->with('error', 'Bakiyeniz yetersiz olduğu için sipariş oluşturulamadı!');
             }
 
             // Siparişi oluştur
@@ -202,11 +234,12 @@ public function kaldir($id)
         $bakiye = $kullanici->bakiye;
 
         // Kullanıcının siparişlerini ve bu siparişlere ait detayları alın
-        $siparisler = $kullanici->siparisler()->with('siparisDetaylari')->get();
+        $siparisler = $kullanici->siparisler()->with('siparisDetaylari')->where('durum', '!=', 'teslim edildi')->get();
 
         // Siparişleri siparislerim.blade.php dosyasına gönderin
-        return view('musteri.siparislerim', compact('siparisler', 'kullaniciAdi', 'bakiye',));
+        return view('musteri.siparislerim', compact('siparisler'));
     }
+
 
     public function siparis_sil($id)
     {
@@ -260,7 +293,7 @@ public function kaldir($id)
         $bakiye = $kullanici->bakiye;
 
 
-        return view('musteri.ayarlar', compact('kullaniciAdi', 'bakiye'));
+        return view('musteri.ayarlar');
     }
 
     public function ayarlarGuncelle(Request $request)
@@ -296,6 +329,52 @@ public function kaldir($id)
 
         // Başarılı bir şekilde güncellendiğine dair mesaj ile ana sayfaya yönlendir
         return redirect()->route('musteri.anasayfa')->with('success', 'Ayarlar başarıyla güncellendi.');
+    }
+
+    public function searchLive(Request $request)
+    {
+        $query = $request->input('query');
+
+        $kelimeler = explode(' ', $query);
+
+        $results = Urun::where('stok', '>', 0)
+            ->where(function ($queryBuilder) use ($kelimeler) {
+                foreach ($kelimeler as $kelime) {
+                    if (strlen($kelime) >= 2) { // Karakter sayısı kontrolü
+                        $queryBuilder->orWhere('urunAdi', 'LIKE', "%{$kelime}%");
+                    }
+                }
+            })
+            ->get();
+
+        return response()->json($results);
+    }
+
+    public function aramaSonuclari(Request $request)
+    {
+        $query = $request->input('query');
+
+        $kelimeler = explode(' ', $query);
+
+        $urunler = Urun::where('stok', '>', 0)
+            ->where(function ($queryBuilder) use ($kelimeler) {
+                foreach ($kelimeler as $kelime) {
+                    if (strlen($kelime) >= 2) { // Karakter sayısı kontrolü
+                        $queryBuilder->orWhere('urunAdi', 'LIKE', "%{$kelime}%");
+                    }
+                }
+            })
+            ->get();
+
+        return view('musteri.arama-sonuclari', compact('urunler'));
+    }
+
+    public function hesapGecmisi()
+    {
+        $kullanici = Auth::user();
+        $gecmisSiparisler = $kullanici->siparisler()->where('durum', 'teslim edildi')->orderBy('created_at', 'desc')->get();
+
+        return view('musteri.hesap_gecmisi', compact('gecmisSiparisler'));
     }
 
 }

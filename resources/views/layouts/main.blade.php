@@ -16,6 +16,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
+    .search-results {
+        position: absolute;
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+    }
 
     /* Sadece butonlar ve textbox'lar için geçiş efekti */
     input[type="text"],
@@ -45,15 +52,11 @@
     }
 
     .nav-item {
-        position: relative;
         margin-right: 20px;
     }
 
     .nav-item .dropdown-menu {
-        min-width: 120px;
-        margin-top: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+        min-width: 100px;
     }
 
     .nav-item .dropdown-item {

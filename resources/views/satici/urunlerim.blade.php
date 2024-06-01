@@ -16,6 +16,7 @@
             <thead>
                 <tr>
                     <th scope="col">#</th>
+                    <th scope="col">Resim</th> <!-- Yeni sütun eklendi -->
                     <th scope="col">Ürün Adı</th>
                     <th scope="col">Açıklama</th>
                     <th scope="col">Kategori</th>
@@ -28,8 +29,16 @@
                 @foreach($urunler as $urun)
                 <tr>
                     <th scope="row">{{ $urun->id }}</th>
+                    <td style="vertical-align: middle;">
+                        @if($urun->resim_yolu)
+                            <img src="{{ asset($urun->resim_yolu) }}" alt="Ürün Resmi" width="50">
+                        @else
+                            Resim Yok
+                        @endif
+                    </td>
+
                     <td>{{ $urun->urunAdi }}</td>
-                    <td>{{ $urun->aciklama }}</td>
+                    <td>{{ strlen($urun->aciklama) > 100 ? substr($urun->aciklama, 0, 45) . '...' : $urun->aciklama }}</td>
                     <td>{{ $urun->kategori->kategoriAdi }}</td>
                     <td>{{ $urun->fiyat }}₺</td>
                     <td>{{ $urun->stok }}</td>

@@ -7,6 +7,8 @@ use App\Models\Urun;
 use App\Models\Kategori;
 use App\Models\Siparisler;
 use App\Models\SiparisDetay;
+use App\Models\GecmisAlim;
+use App\Models\Kullanici;
 use Illuminate\Support\Facades\Auth;
 
 class SaticiController extends Controller
@@ -143,12 +145,22 @@ public function urunSil($id)
 }
 public function bekleyenSiparisler()
 {
-    // Bekleyen siparişleri al
-    $bekleyenSiparisler = Siparisler::get();
+    $kullanici = Auth::user();
 
-    // Bekleyen siparişleri gösteren bir view döndür
+    // Giriş yapmış kullanıcının tüm ürünlerini al
+    $urunler = Urun::where('kullanici_id', $kullanici->id)->get();
+
+    // Bu ürünlerin sipariş detaylarında olup olmadığını kontrol et ve sipariş_id'leri al
+    $siparisIds = SiparisDetay::whereIn('urun_id', $urunler->pluck('id'))->distinct('siparis_id')->pluck('siparis_id');
+
+    // Bekleyen siparişleri al, teslim edilmemiş olanları getir
+    $bekleyenSiparisler = Siparisler::whereIn('id', $siparisIds)
+        ->where('durum', '!=', 'teslim edildi')
+        ->get();
+
     return view('satici.bekleyen-siparisler', compact('bekleyenSiparisler'));
 }
+
 public function updateSiparisDurum(Request $request, $id)
 {
     // Siparişin durumunu güncelle
@@ -156,6 +168,52 @@ public function updateSiparisDurum(Request $request, $id)
     $siparis->durum = $request->durum;
     $siparis->save();
 
+    // Sipariş durumu "teslim edildi" ise
+    if ($request->durum === 'teslim edildi') {
+        // Sipariş detaylarını al
+        $siparisDetaylari = $siparis->siparisDetaylari;
+
+        // Her bir sipariş detayı için
+        foreach ($siparisDetaylari as $siparisDetay) {
+            // GecmisAlimlar tablosuna ekle
+            GecmisAlim::create([
+                'kullanici_id' => $siparis->kullanici_id,
+                'urun_id' => $siparisDetay->urun_id,
+                'miktar' => $siparisDetay->miktar,
+                'tarih' => now(),
+                'toplam_tutar' =>$siparisDetay->urun->fiyat * $siparisDetay->miktar,
+                'satici_id' => $siparisDetay->urun->kullanici_id,
+            ]);
+
+            // Satıcıya toplam tutarı ekle
+            $satici = Kullanici::find($siparisDetay->urun->kullanici_id);
+            $satici->bakiye += $siparisDetay->urun->fiyat * $siparisDetay->miktar;
+            $satici->save();
+        }
+    }
+
+
     return redirect()->back()->with('success', 'Sipariş durumu güncellendi.');
 }
+public function satislarim()
+{
+    // Giriş yapan satıcının id'sini al
+    $saticiId = Auth::user()->id;
+
+    // Satıcının satışlarını al ve en sonuncudan başlayarak sırala
+    $satislar = Siparisler::with('siparisDetaylari')
+        ->whereHas('siparisDetaylari', function ($query) use ($saticiId) {
+            $query->whereHas('urun', function ($query) use ($saticiId) {
+                $query->where('kullanici_id', $saticiId);
+            });
+        })
+        ->where('durum', 'teslim edildi')
+        ->orderByDesc('created_at')
+        ->get();
+
+    return view('satici.satislarim', compact('satislar'));
+}
+
+
+
 }

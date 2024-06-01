@@ -23,18 +23,21 @@
     </div>
     <hr>
 
-    <div class="row">
+    <div class="row row-cols-4 g-2">
         @foreach($urunler as $urun)
-        <div class="col-md-2 mb-4">
-            <div class="card">
-                <a href="{{ route('urun.detay', $urun->id) }}" class="btn card-body text-center">
-                    <img src="{{ asset($urun->resim_yolu) }}" alt="{{ $urun->urunAdi }}" class="img-fluid mb-2">
-                    <h5 class="card-title">{{ $urun->urunAdi }}</h5>
-                    <p class="card-text">{{ $urun->fiyat }}₺</p>
+        <div class="col">
+            <div class="card h-100">
+                <a href="{{ route('urun.detay', $urun->id) }}" class="btn card-body text-center text-decoration-none">
+                    <img src="{{ asset($urun->resim_yolu) }}" alt="{{ $urun->urunAdi }}" class="card-img-top mb-3">
+                    <div class="card-body mt-auto">
+                        <h5 class="card-title">{{ $urun->urunAdi }}</h5>
+                        <p class="card-text">{{ $urun->fiyat }}₺</p>
+                    </div>
                 </a>
             </div>
         </div>
         @endforeach
     </div>
+
 </div>
 @endsection
