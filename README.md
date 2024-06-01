@@ -7,3 +7,4 @@
 ![4](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/4.PNG)
 ![5](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/5.PNG)
 ![6](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/6.PNG)
+![7](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/7.PNG)
