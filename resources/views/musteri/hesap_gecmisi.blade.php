@@ -12,21 +12,19 @@
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
-                    <th scope="col">Sipariş No</th>
-                    <th scope="col">Toplam Tutar</th>
+                    <th scope="col">Tarih</th>
                     <th scope="col">Durum</th>
                     <th scope="col">Satıcı</th>
-                    <th scope="col">Tarih</th>
+                    <th scope="col">Toplam Tutar</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($gecmisSiparisler as $siparis)
                     <tr data-bs-toggle="collapse" data-bs-target="#collapse{{ $siparis->id }}" aria-expanded="false" aria-controls="collapse{{ $siparis->id }}">
-                        <td>{{ $siparis->id }}</td>
-                        <td><span style="color: #dc3545;"><i class="fas fa-minus fa-sm"></i> {{ $siparis->toplam_tutar }} ₺</span></td>
+                        <td class="small">{{ $siparis->created_at->diffForHumans() }}</td>
                         <td>{{ $siparis->durum }}</td>
                         <td>{{ $siparis->siparisDetaylari->first()->urun->kullanici->kullaniciAdi }}</td>
-                        <td class="small">{{ $siparis->created_at->diffForHumans() }}</td>
+                        <td><span style="color: #dc3545;"><i class="fas fa-minus fa-sm"></i> {{ $siparis->toplam_tutar }} ₺</span></td>
                     </tr>
                     <tr>
                         <td colspan="5" class="p-0">
@@ -40,9 +38,10 @@
                                                 @else
                                                     <img src="path_to_placeholder_image" alt="Resim Yok" class="img-thumbnail mb-2" style="width: 100%;">
                                                 @endif
-                                                <div class="text-center">
+                                                <div class="text-center small">
                                                     <p>{{ $detay->urun->urunAdi }}</p>
                                                     <p>{{ $detay->miktar }} adet</p>
+                                                    <p>{{ $detay->urun->fiyat }} ₺</p>
                                                     <p>{{ $detay->miktar * $detay->urun->fiyat }} ₺</p>
                                                 </div>
                                             </div>

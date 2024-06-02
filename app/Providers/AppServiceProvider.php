@@ -8,6 +8,8 @@ use Illuminate\Support\Carbon;
 use App\Models\SiparisDetay;
 use App\Models\Urun;
 use App\Models\Siparisler;
+use App\Models\Yorumlar;
+use App\Models\GecmisAlim;
 use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
@@ -62,12 +64,17 @@ class AppServiceProvider extends ServiceProvider
                 // Müşteri için sepet ürün sayısı
                 $sepetUrunSayisi = $kullanici->sepet->count();
                 // Müşteri için siparişlerim sayısı
-                $SiparislerimSayisi = $kullanici->siparisler()->where('durum', '!=', 'teslim edildi')->count();
+                $siparislerimSayisi = $kullanici->siparisler()->where('durum', '!=', 'teslim edildi')->count();
             } else {
+                $kullaniciAdi = null;
+                $bakiye = null;
                 $sepetUrunSayisi = 0;
-                $SiparislerimSayisi = 0;
+                $siparislerimSayisi = 0;
             }
-            $view->with(compact('kullaniciAdi','bakiye','sepetUrunSayisi', 'SiparislerimSayisi'));
+
+
+            $view->with(compact('kullaniciAdi', 'bakiye', 'sepetUrunSayisi', 'siparislerimSayisi'));
         });
+
     }
 }

@@ -28,6 +28,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/kategori/{id}', [MusteriController::class, 'kategoriDetay'])->name('kategori.detay');
     Route::get('/urun/{id}', [MusteriController::class, 'urunDetay'])->name('urun.detay');
     Route::post('/urun/{id}/yorum-yap', [MusteriController::class, 'yorumYap'])->name('yorum.yap');
+    Route::post('/favori/toggle/{urun}', [MusteriController::class, 'favoriToggle'])->name('favori.toggle');
+    Route::get('/favoriler', [MusteriController::class, 'favoriler'])->name('favoriler');
 
     Route::post('/sepet/ekle/{urunId}', [MusteriController::class, 'sepeteEkle'])->name('sepet.ekle');
     Route::get('/sepet', [MusteriController::class, 'sepet'])->name('sepet');

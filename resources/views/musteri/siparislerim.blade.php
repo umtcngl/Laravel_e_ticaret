@@ -3,6 +3,21 @@
 @section('musteri-content')
 
 <div class="container mt-5">
+    @if($siparisler->isEmpty())
+    <div class="d-flex justify-content-center align-items-center flex-column">
+        <div>
+            <h1>Siparişlerim</h1>
+        </div>
+        <div class="m-5 text-center" style="font-size:50px">
+            <i class="fas fa-receipt" style="color: #ffc107;"></i>
+            <span class="badge bg-warning">0</span>
+        </div>
+        <div>
+            <p>Aktif siparişiniz bulunmamaktadır.</p>
+        </div>
+    </div>
+
+    @else
     <div class="d-flex justify-content-between mb-3">
         <div>
             <h1>Siparişlerim</h1>
@@ -12,10 +27,6 @@
             <p><i class="fas fa-exclamation-circle" style="color:darkred "></i> Siparişiniz 'beklemede' değil ise iptal edemezsiniz!</p>
         </div>
     </div>
-
-    @if($siparisler->isEmpty())
-        <p>Aktif siparişiniz bulunmamaktadır.</p>
-    @else
     <table class="table table-striped">
         <thead class="table-dark">
             <tr>
@@ -33,7 +44,7 @@
                     <td>{{ $siparis->id }}</td>
                     <td><span>{{ $siparis->toplam_tutar }} ₺</span></td>
                     <td>{{$siparis->durum}}</td>
-                    <td>{{ $siparis->kullanici->kullaniciAdi }}</td>
+                    <td>{{ $siparis->siparisDetaylari->first()->urun->kullanici->kullaniciAdi }}</td>
                     <td>{{ $siparis->siparis_tarihi}}</td>
                     <td> <!-- Yeni eklenen hücre -->
                         @if($siparis->durum == 'beklemede')

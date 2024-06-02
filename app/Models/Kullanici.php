@@ -21,14 +21,9 @@ class Kullanici extends Authenticatable
         'sifre',
     ];
 
-    public function adresler()
+    public function favoriler()
     {
-        return $this->hasMany(Adres::class, 'kullanici_id');
-    }
-
-    public function derecelendirmeler()
-    {
-        return $this->hasMany(Derecelendirme::class, 'kullanici_id');
+        return $this->hasMany(Favori::class, 'kullanici_id');
     }
 
     public function gecmisAlimlar()

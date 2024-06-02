@@ -5,25 +5,42 @@
 @section('musteri-content')
 @if($dahaOnceAlmisMi && !$yapilmisYorum)
     <div class="row mt-5">
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-4 d-flex position-relative">
             <img src="{{ asset($urun->resim_yolu) }}" alt="{{ $urun->urunAdi }}" class="img-fluid">
-        </div>
-        <div class="col-md-8 mb-4">
-            <h1>{{ $urun->urunAdi }}</h1>
-            <p class="small">{{ $urun->aciklama }}</p>
-            <p><b>Satıcı:</b> {{ $urun->kullanici->kullaniciAdi }}</p>
-            <p><b>Fiyat:</b> {{ $urun->fiyat }}₺</p>
-            <p><b>Stok:</b> {{ $urun->stok }} Adet</p>
-
-            <!-- Sepete Ekle Formu -->
-            <form method="post" action="{{ route('sepet.ekle', $urun->id) }}" class="mb-4">
+            <!-- Bilgi Kısmı -->
+            <span class="d-flex position-absolute top-0 start-0 bg-info text-white p-2 rounded-pill" style="z-index: 1;">
+                <i class="fas fa-star me-3"> {{ isset($urunPuanlar[$urun->id]) ? $urunPuanlar[$urun->id] : 0 }}</i>
+                    <i class="fas fa-shopping-cart"> {{ isset($urunSiparisSayilari[$urun->id]) ? $urunSiparisSayilari[$urun->id] : 0 }}</i>
+            </span>
+            <!-- Favori Ekle/Çıkar Formu -->
+            <form method="post" action="{{ route('favori.toggle', $urun->id) }}">
                 @csrf
-                <div class="form-group">
-                    <p class="text-muted">Miktar</p>
-                    <input type="number" id="miktar" name="miktar" class="form-control" value="1" min="1" style="width: 90px;">
-                </div>
-                <button type="submit" class="btn btn-outline-primary mt-3"><i class="fas fa-cart-plus me-2"></i>Sepete Ekle</button>
+                @php
+                    $favori = Auth::check() ? Auth::user()->favoriler()->where('urun_id', $urun->id)->first() : null;
+                @endphp
+                <button type="submit" class="btn btn-info p-2 mt-2" style="font-size:25px;color:#107df2;background-color: transparent; border: none;">
+                    <i class="{{ $favori ? 'fas fa-star' : 'far fa-star' }}"></i>
+                </button>
             </form>
+        </div>
+        <div class="col-md-5 mb-4">
+            <div class="ms-4">
+                <h1>{{ $urun->urunAdi }}</h1>
+                <p class="small">{{ $urun->aciklama }}</p>
+                <p><b>Satıcı:</b> {{ $urun->kullanici->kullaniciAdi }}</p>
+                <p><b>Fiyat:</b> {{ $urun->fiyat }}₺</p>
+                <p><b>Stok:</b> {{ $urun->stok }} Adet</p>
+
+                <!-- Sepete Ekle Formu -->
+                <form method="post" action="{{ route('sepet.ekle', $urun->id) }}" class="mb-4">
+                    @csrf
+                    <div class="form-group">
+                        <p class="text-muted">Miktar</p>
+                        <input type="number" id="miktar" name="miktar" class="form-control" value="1" min="1" style="width: 90px;">
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary mt-3"><i class="fas fa-cart-plus me-2"></i>Sepete Ekle</button>
+                </form>
+            </div>
         </div>
         <div class="col-md-3">
             <!-- Yorum Ekle Formu -->
@@ -45,25 +62,43 @@
     </div>
 @else
     <div class="row mt-5">
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-4 d-flex position-relative">
             <img src="{{ asset($urun->resim_yolu) }}" alt="{{ $urun->urunAdi }}" class="img-fluid">
-        </div>
-        <div class="col-md-8 mb-4">
-            <h1>{{ $urun->urunAdi }}</h1>
-            <p class="small">{{ $urun->aciklama }}</p>
-            <p><b>Satıcı:</b> {{ $urun->kullanici->kullaniciAdi }}</p>
-            <p><b>Fiyat:</b> {{ $urun->fiyat }}₺</p>
-            <p><b>Stok:</b> {{ $urun->stok }} Adet</p>
-
-            <!-- Sepete Ekle Formu -->
-            <form method="post" action="{{ route('sepet.ekle', $urun->id) }}" class="mb-4">
+            <!-- Bilgi Kısmı -->
+            <span class="d-flex position-absolute top-0 start-0 bg-info text-white p-2 rounded-pill" style="z-index: 1;">
+                <i class="fas fa-star me-3"> {{ isset($urunPuanlar[$urun->id]) ? $urunPuanlar[$urun->id] : 0 }}</i>
+                    <i class="fas fa-shopping-cart"> {{ isset($urunSiparisSayilari[$urun->id]) ? $urunSiparisSayilari[$urun->id] : 0 }}</i>
+            </span>
+            <!-- Favori Ekle/Çıkar Formu -->
+            <form method="post" action="{{ route('favori.toggle', $urun->id) }}">
                 @csrf
-                <div class="form-group">
-                    <p class="text-muted">Miktar</p>
-                    <input type="number" id="miktar" name="miktar" class="form-control" value="1" min="1" style="width: 90px;">
-                </div>
-                <button type="submit" class="btn btn-outline-primary mt-3"><i class="fas fa-cart-plus me-2"></i>Sepete Ekle</button>
+                @php
+                    $favori = Auth::check() ? Auth::user()->favoriler()->where('urun_id', $urun->id)->first() : null;
+                @endphp
+                <button type="submit" class="btn btn-info p-2 mt-2" style="font-size:25px;color:#107df2;background-color: transparent; border: none;">
+                    <i class="{{ $favori ? 'fas fa-star' : 'far fa-star' }}"></i>
+                </button>
             </form>
+        </div>
+
+        <div class="col-md-8 mb-4">
+            <div class="ms-4">
+                <h1>{{ $urun->urunAdi }}</h1>
+                <p class="small">{{ $urun->aciklama }}</p>
+                <p><b>Satıcı:</b> {{ $urun->kullanici->kullaniciAdi }}</p>
+                <p><b>Fiyat:</b> {{ $urun->fiyat }}₺</p>
+                <p><b>Stok:</b> {{ $urun->stok }} Adet</p>
+
+                <!-- Sepete Ekle Formu -->
+                <form method="post" action="{{ route('sepet.ekle', $urun->id) }}" class="mb-4">
+                    @csrf
+                    <div class="form-group">
+                        <p class="text-muted">Miktar</p>
+                        <input type="number" id="miktar" name="miktar" class="form-control" value="1" min="1" style="width: 90px;">
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary mt-3"><i class="fas fa-cart-plus me-2"></i>Sepete Ekle</button>
+                </form>
+            </div>
         </div>
     </div>
 @endif

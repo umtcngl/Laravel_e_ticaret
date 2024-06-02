@@ -52,7 +52,7 @@
 
             <a href="{{ route('siparislerim') }}" class="btn nav-item ms-2 position-relative text-decoration-none">
                 <i class="fas fa-receipt" style="color: #ffc107;"></i>
-                <span class="badge bg-warning position-absolute bottom-5 start-2 translate-middle">{{ $SiparislerimSayisi }}</span>
+                <span class="badge bg-warning position-absolute bottom-5 start-2 translate-middle">{{ $siparislerimSayisi }}</span>
             </a>
             <a href="{{ route('sepet') }}" class="btn nav-item ms-2 position-relative text-decoration-none">
                 <i class="fas fa-shopping-cart" style="color: #dc3545;"></i>

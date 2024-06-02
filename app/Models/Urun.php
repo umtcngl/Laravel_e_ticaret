@@ -18,6 +18,10 @@ class Urun extends Model
         'resim_yolu', // Yeni eklenen sütun
     ];
 
+    public function favoriler()
+    {
+        return $this->hasMany(Favori::class, 'urun_id');
+    }
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'kategori_id');
@@ -26,11 +30,6 @@ class Urun extends Model
     public function kullanici()
     {
         return $this->belongsTo(Kullanici::class, 'kullanici_id');
-    }
-
-    public function derecelendirmeler()
-    {
-        return $this->hasMany(Derecelendirme::class, 'urun_id');
     }
 
     public function gecmisAlimlar()

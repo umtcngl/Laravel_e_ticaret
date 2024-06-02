@@ -13,6 +13,7 @@ use App\Models\Siparisler;
 use App\Models\Kullanici;
 use App\Models\Yorumlar;
 USE App\Models\GecmisAlim;
+use App\Models\Favori;
 class MusteriController extends Controller
 {
     public function anasayfa()
@@ -23,21 +24,81 @@ class MusteriController extends Controller
         // Stoğu sıfır olmayan ürünleri getir
         $urunler = Urun::where('stok', '>', 0)->get();
 
-        return view('musteri.anasayfa', compact('kategoriler', 'urunler'));
+        // Her bir ürün için en yüksek puanı alanları getir
+        $enYuksekPuanAlanlar = Yorumlar::select('urun_id', \DB::raw('AVG(puan) as ortalama_puan, COUNT(*) as yorum_sayisi'))
+        ->groupBy('urun_id')
+        ->orderByRaw('AVG(puan) DESC')
+        ->take(4)
+        ->get();
+
+    // En çok satan ürünleri getir
+    $enCokSatanlar = GecmisAlim::select('urun_id', \DB::raw('COUNT(*) as alim_sayisi'))
+        ->groupBy('urun_id')
+        ->orderByRaw('COUNT(*) DESC')
+        ->take(4)
+        ->get();
+
+    // Her bir ürün için puanları ve sipariş edilme sayısını hesapla
+    $urunPuanlar = [];
+    $urunSiparisSayilari = [];
+    foreach ($urunler as $urun) {
+        // Ürünün aldığı puanları hesapla
+        $puanlar = $urun->yorumlar->pluck('puan')->toArray();
+        $toplamPuan = count($puanlar) > 0 ? array_sum($puanlar) : 0;
+        $ortalamaPuan = count($puanlar) > 0 ? $toplamPuan / count($puanlar) : 0;
+        $urunPuanlar[$urun->id] = $ortalamaPuan;
+
+        // Ürünün sipariş edilme sayısını hesapla
+        $urunSiparisSayilari[$urun->id] = GecmisAlim::where('urun_id', $urun->id)->count();
+    }
+
+    return view('musteri.anasayfa', compact('kategoriler', 'urunler', 'enYuksekPuanAlanlar', 'enCokSatanlar', 'urunPuanlar', 'urunSiparisSayilari'));
     }
 
     public function kategoriDetay($id)
     {
         // İlgili kategori bilgilerini ve ürünlerini al
         $kategori = Kategori::findOrFail($id);
-        $urunler = $kategori->urunler()->get();
+        $urunler = $kategori->urunler()->where('stok', '>', 0)->get();
 
-        return view('musteri.kategori-detay', compact('kategori', 'urunler'));
+
+        // Her bir ürün için en yüksek puanı alanları getir
+        $enYuksekPuanAlanlar = Yorumlar::select('urun_id', \DB::raw('AVG(puan) as ortalama_puan, COUNT(*) as yorum_sayisi'))
+        ->groupBy('urun_id')
+        ->orderByRaw('AVG(puan) DESC')
+        ->take(4)
+        ->get();
+
+        // En çok satan ürünleri getir
+        $enCokSatanlar = GecmisAlim::select('urun_id', \DB::raw('COUNT(*) as alim_sayisi'))
+            ->groupBy('urun_id')
+            ->orderByRaw('COUNT(*) DESC')
+            ->take(4)
+            ->get();
+
+        // Her bir ürün için puanları ve sipariş edilme sayısını hesapla
+        $urunPuanlar = [];
+        $urunSiparisSayilari = [];
+        foreach ($urunler as $urun) {
+            // Ürünün aldığı puanları hesapla
+            $puanlar = $urun->yorumlar->pluck('puan')->toArray();
+            $toplamPuan = count($puanlar) > 0 ? array_sum($puanlar) : 0;
+            $ortalamaPuan = count($puanlar) > 0 ? $toplamPuan / count($puanlar) : 0;
+            $urunPuanlar[$urun->id] = $ortalamaPuan;
+
+            // Ürünün sipariş edilme sayısını hesapla
+            $urunSiparisSayilari[$urun->id] = GecmisAlim::where('urun_id', $urun->id)->count();
+        }
+
+        return view('musteri.kategori-detay', compact('kategori', 'urunler', 'enYuksekPuanAlanlar', 'enCokSatanlar', 'urunPuanlar', 'urunSiparisSayilari'));
     }
 
     public function urunDetay($id)
     {
+        // Kullanıcı bilgisini al
         $kullanici = Auth::user();
+
+        // Kullanıcının adını ve bakiyesini al
         $kullaniciAdi = $kullanici->kullaniciAdi;
         $bakiye = $kullanici->bakiye;
 
@@ -45,17 +106,50 @@ class MusteriController extends Controller
         $urun = Urun::findOrFail($id);
 
         // Kullanıcının daha önce yorum yapmış veya derecelendirme yapmış olup olmadığını kontrol et
-        $yapilmisYorum = Yorumlar::where('kullanici_id', auth()->id())->where('urun_id', $id)->exists();
+        $yapilmisYorum = $urun->yorumlar()->where('kullanici_id', auth()->id())->exists();
 
         // Kullanıcının daha önce belirli bir ürünü satın alıp almadığını kontrol et
         $dahaOnceAlmisMi = GecmisAlim::where('kullanici_id', auth()->id())->where('urun_id', $id)->exists();
 
-
         // Ürünün yorumlarını al
         $yorumlar = $urun->yorumlar;
 
-        return view('musteri.urun-detay', compact('urun', 'kullanici', 'yorumlar','dahaOnceAlmisMi','yapilmisYorum'));
+        //-------------------------------------------------------------------------------
+        // Her bir ürün için en yüksek puanı alanları getir
+        $enYuksekPuanAlanlar = Yorumlar::select('urun_id', \DB::raw('AVG(puan) as ortalama_puan, COUNT(*) as yorum_sayisi'))
+        ->groupBy('urun_id')
+        ->orderByRaw('AVG(puan) DESC')
+        ->take(4)
+        ->get();
+
+        // En çok satan ürünleri getir
+        $enCokSatanlar = GecmisAlim::select('urun_id', \DB::raw('COUNT(*) as alim_sayisi'))
+            ->groupBy('urun_id')
+            ->orderByRaw('COUNT(*) DESC')
+            ->take(4)
+            ->get();
+
+        // Her bir ürün için puanları ve sipariş edilme sayısını hesapla
+        $urunPuanlar = [];
+        $urunSiparisSayilari = [];
+
+        // Ürün varsa ve yorumları varsa işlemleri yap
+        if ($urun && $urun->yorumlar()->exists()) {
+            $puanlar = $urun->yorumlar->pluck('puan')->toArray();
+            $toplamPuan = count($puanlar) > 0 ? array_sum($puanlar) : 0;
+            $ortalamaPuan = count($puanlar) > 0 ? $toplamPuan / count($puanlar) : 0;
+            $urunPuanlar[$urun->id] = $ortalamaPuan;
+        } else {
+            // Eğer yorum yoksa, ortalama puanı sıfır olarak ayarla
+            $urunPuanlar[$urun->id] = 0;
+        }
+
+        // Ürünün sipariş edilme sayısını hesapla
+        $urunSiparisSayilari[$urun->id] = GecmisAlim::where('urun_id', $urun->id)->count();
+
+        return view('musteri.urun-detay', compact('urun', 'kullanici', 'yorumlar', 'dahaOnceAlmisMi', 'yapilmisYorum', 'enYuksekPuanAlanlar', 'enCokSatanlar', 'urunPuanlar', 'urunSiparisSayilari'));
     }
+
 
 
 
@@ -376,5 +470,32 @@ public function kaldir($id)
 
         return view('musteri.hesap_gecmisi', compact('gecmisSiparisler'));
     }
+    public function favoriToggle(Urun $urun)
+    {
+        $kullaniciId = Auth::id();
 
+        // Kullanıcının favori kaydını kontrol et
+        $favori = Favori::where('kullanici_id', $kullaniciId)->where('urun_id', $urun->id)->first();
+
+        if ($favori) {
+            // Favori varsa sil
+            $favori->delete();
+            $message = 'Ürün favorilerden çıkarıldı.';
+        } else {
+            // Favori yoksa ekle
+            Favori::create([
+                'kullanici_id' => $kullaniciId,
+                'urun_id' => $urun->id,
+            ]);
+            $message = 'Ürün favorilere eklendi.';
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+    public function favoriler()
+    {
+        $favoriler = auth()->user()->favoriler()->with('urun')->get();
+
+        return view('musteri.favoriler', compact('favoriler'));
+    }
 }
