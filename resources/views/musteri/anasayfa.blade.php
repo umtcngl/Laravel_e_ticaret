@@ -41,10 +41,40 @@ $favorisayisi = auth()->user()->favoriler()->count();
         @endif
         @endforeach
     </div>
+    <!-- Önerilenler -->
+    <h2>Önerilenler</h2>
+    <hr>
+    <div class="row row-cols-5 g-2 mb-5">
+        <!-- Burada önerilen ürünleri göster -->
+        @foreach($onerilenler as $onerilen)
+        <div class="col">
+            <div class="card h-100 position-relative">
+                <!-- Mavi kutu -->
+                <div class="d-flex position-absolute top-0 start-0 bg-primary text-white p-2 rounded-pill" style="z-index: 1;">
+                    <i class="small fas fa-star me-3"> {{ isset($urunPuanlar[$onerilen->urun->id]) ? $urunPuanlar[$onerilen->urun->id] : 0 }}</i>
+                    <i class="small fas fa-shopping-cart"> {{ isset($urunSiparisSayilari[$onerilen->urun->id]) ? $urunSiparisSayilari[$onerilen->urun->id] : 0 }}</i>
+                </div>
+
+                @if(isset($onerilen->urun))
+                    <a href="{{ route('urun.detay', $onerilen->urun->id) }}" class="btn card-body text-center text-decoration-none">
+                        <img src="{{ asset($onerilen->urun->resim_yolu) }}" alt="{{ $onerilen->urun->urunAdi }}" class="card-img-top mb-3">
+                        <div class="card-body mt-auto">
+                            <h5 class="card-title">{{ $onerilen->urun->urunAdi }}</h5>
+                            <p class="card-text">{{ $onerilen->urun->fiyat }}₺</p>
+                        </div>
+                    </a>
+                @endif
+            </div>
+        </div>
+    @endforeach
+    </div>
+
+
+
  <!-- En yüksek puan alan ürünler -->
 <h2>En Yüksek Puan Alanlar</h2>
 <hr>
-<div class="row row-cols-4 g-2">
+<div class="row row-cols-5 g-2">
     @foreach($enYuksekPuanAlanlar as $veri)
     <div class="col">
         <div class="card h-100 position-relative">
@@ -74,7 +104,7 @@ $favorisayisi = auth()->user()->favoriler()->count();
     <!-- En Çok Satanlar -->
     <h2 class="mt-5">En Çok Satanlar</h2>
     <hr>
-    <div class="row row-cols-4 g-2 mb-5">
+    <div class="row row-cols-5 g-2 mb-5">
         <!-- Burada en çok satan 4 ürünü göster -->
         @foreach($enCokSatanlar as $satan)
         <div class="col">

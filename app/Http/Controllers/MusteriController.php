@@ -14,10 +14,14 @@ use App\Models\Kullanici;
 use App\Models\Yorumlar;
 USE App\Models\GecmisAlim;
 use App\Models\Favori;
+use App\Models\KullaniciAktivite;
+use App\Models\DigerAktiviteler;
+use App\Models\UrunOneri;
 class MusteriController extends Controller
 {
     public function anasayfa()
     {
+        $onerilenler = UrunOneri::with('urun')->get();
         // Kategorileri getir
         $kategoriler = Kategori::all();
 
@@ -52,7 +56,7 @@ class MusteriController extends Controller
         $urunSiparisSayilari[$urun->id] = GecmisAlim::where('urun_id', $urun->id)->count();
     }
 
-    return view('musteri.anasayfa', compact('kategoriler', 'urunler', 'enYuksekPuanAlanlar', 'enCokSatanlar', 'urunPuanlar', 'urunSiparisSayilari'));
+    return view('musteri.anasayfa', compact('kategoriler', 'urunler', 'enYuksekPuanAlanlar', 'enCokSatanlar', 'urunPuanlar', 'urunSiparisSayilari','onerilenler'));
     }
 
     public function kategoriDetay($id)
@@ -111,8 +115,16 @@ class MusteriController extends Controller
         // Kullanıcının daha önce belirli bir ürünü satın alıp almadığını kontrol et
         $dahaOnceAlmisMi = GecmisAlim::where('kullanici_id', auth()->id())->where('urun_id', $id)->exists();
 
-        // Ürünün yorumlarını al
-        $yorumlar = $urun->yorumlar;
+        // Ürünün yorumlarını al ve kullanıcı bulunamazsa "kullanıcı silinmiş" olarak ayarla
+        $yorumlar = $urun->yorumlar->map(function($yorum) {
+            $kullanici = Kullanici::find($yorum->kullanici_id);
+            if (!$kullanici) {
+                $yorum->kullaniciAdi = 'Kullanıcı Silinmiş!!';
+            } else {
+                $yorum->kullaniciAdi = $kullanici->kullaniciAdi;
+            }
+            return $yorum;
+        });
 
         //-------------------------------------------------------------------------------
         // Her bir ürün için en yüksek puanı alanları getir
@@ -239,8 +251,16 @@ class MusteriController extends Controller
             $sepet->save();
         }
 
+        // DigerAktiviteler tablosuna kaydet
+        $aktivite = new DigerAktiviteler();
+        $aktivite->kullanici_id = Auth::id();
+        $aktivite->urun_id = $urunId;
+        $aktivite->islem = 'Sepete Ürün Ekledi';
+        $aktivite->save();
+
         return redirect()->route('musteri.anasayfa')->with('success', 'Ürün sepete eklendi.');
     }
+
 
 
 public function arttir($id)
@@ -460,6 +480,19 @@ public function kaldir($id)
             })
             ->get();
 
+        // Arama sorgusunu ve bulunan ürünleri kaydetme
+        if (Auth::check()) {
+            $kullaniciId = Auth::id();
+
+            foreach ($urunler as $urun) {
+                DigerAktiviteler::create([
+                    'kullanici_id' => $kullaniciId,
+                    'urun_id' => $urun->id,
+                    'islem' => 'Arama yapıldı: ' . $query
+                ]);
+            }
+        }
+
         return view('musteri.arama-sonuclari', compact('urunler'));
     }
 
@@ -498,4 +531,22 @@ public function kaldir($id)
 
         return view('musteri.favoriler', compact('favoriler'));
     }
+
+    public function sayfaSuresiKaydet(Request $request)
+    {
+        $url = $request->input('url');
+        $duration = $request->input('duration');
+        $urunId = $request->input('urunId');
+
+        // Kullanıcı aktivitesini kaydet
+        $kullaniciAktivite = new KullaniciAktivite();
+        $kullaniciAktivite->kullanici_id = auth()->id(); // Oturum açmış kullanıcının ID'sini al
+        $kullaniciAktivite->urun_id = $urunId;
+        $kullaniciAktivite->sayfa_url = $url;
+        $kullaniciAktivite->sure_saniye = $duration;
+        $kullaniciAktivite->save();
+
+        return response()->json(['message' => 'Sayfa kalma süresi kaydedildi']);
+    }
+
 }

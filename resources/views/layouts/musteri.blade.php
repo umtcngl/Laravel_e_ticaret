@@ -66,7 +66,6 @@
 <!-- Ana içerik -->
 @yield('musteri-content')
 
-@endsection
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -110,3 +109,4 @@
         });
     });
 </script>
+@endsection

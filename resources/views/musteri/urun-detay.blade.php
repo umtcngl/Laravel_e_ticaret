@@ -52,9 +52,10 @@
                 </div>
                 <div class="form-group mt-4">
                     <div class="form-group">
-                        <label for="puan">Puanınız</label><output class="ms-3 mb-3" id="selectedPuan">0</output>
+                        <label for="puan">Puanınız</label>
+                        <output class="ms-3 mb-3" id="selectedPuan">0</output>
                         <input type="range" class="form-range" id="puan" name="puan" min="0" max="10" step="1" value="0">
-                    </div>
+                      </div>
                 </div>
                 <button type="submit" class="btn btn-outline-dark mt-4"><i class="fas fa-comment me-2"></i>Yorum Yap</button>
             </form>
@@ -135,13 +136,46 @@
     </div>
 
 @endif
-
 <script>
-    const puanSlider = document.getElementById('puan');
-    const selectedPuan = document.getElementById('selectedPuan');
+    document.addEventListener('DOMContentLoaded', function() {
+      const puanSlider = document.getElementById('puan'); // Değiştirilen kısım
+      const selectedPuan = document.getElementById('selectedPuan');
 
-    puanSlider.addEventListener('input', function() {
+      puanSlider.addEventListener('input', function() {
         selectedPuan.textContent = puanSlider.value;
+      });
     });
-</script>
+    $(document).ready(function() {
+      // Sayfa yüklenirken başlangıç zamanını kaydet
+      let startTime = new Date().getTime();
+
+      $(window).on("beforeunload", function() {
+        let endTime = new Date().getTime(); // Sayfadan çıkış zamanı
+        let duration = (endTime - startTime) / 1000; // Süreyi saniye olarak hesapla
+        let url = window.location.href;
+        let pathArray = window.location.pathname.split('/');
+        let filteredUrl = `${pathArray[1]}/${pathArray[2]}`;
+        let urunId = {{ $urun->id }};
+        let csrfToken = "{{ csrf_token() }}"; // CSRF token'ı yazdırın
+
+        $.ajax({
+          url: "/musteri/sayfa-suresi-kaydet",
+          method: "POST",
+          data: {
+            _token: csrfToken, // Token'ı isteğe ekleyin
+            url: filteredUrl,
+            duration: duration,
+            urunId: urunId
+          },
+          success: function() {
+            console.log("Sayfa kalma süresi kaydedildi");
+          },
+          error: function() {
+            console.error("Sayfa kalma süresi kaydedilemedi");
+          }
+        });
+      });
+    });
+    </script>
+
 @endsection

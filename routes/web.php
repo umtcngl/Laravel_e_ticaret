@@ -21,6 +21,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/kayit', [RegisterController::class, 'showRegistrationForm'])->name('kayit');
 Route::post('/kayit', [RegisterController::class, 'register']);
 
+Route::post('/musteri/sayfa-suresi-kaydet', [MusteriController::class, 'sayfaSuresiKaydet']);
 // Oturum gerektiren sayfalar
 Route::middleware(['auth'])->group(function () {
     // Müşteri sayfaları

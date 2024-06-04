@@ -4,9 +4,9 @@
 <div class="container">
     <h2 class="mb-3">Arama Sonuçları</h2>
     <hr>
-    <div class="row">
+    <div class="row row-cols-5">
         @foreach($urunler as $urun)
-        <div class="col-md-3 mb-4">
+        <div class="col mb-4">
             <div class="card">
                 <a href="{{ route('urun.detay', $urun->id) }}" class="btn card-body text-center">
                     <img src="{{ asset($urun->resim_yolu) }}" alt="{{ $urun->urunAdi }}" class="img-fluid mb-2">

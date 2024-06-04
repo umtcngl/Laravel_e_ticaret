@@ -40,10 +40,15 @@ class AdminController extends Controller
     public function kullaniciSil($id)
     {
         $kullanici = Kullanici::find($id);
-        $kullanici->delete();
 
-        return redirect()->back()->with('success', 'Kullanıcı silindi.');
+        if ($kullanici) {
+            $kullanici->delete();
+            return redirect()->back()->with('success', 'Kullanıcı silindi.');
+        }
+
+        return redirect()->back()->with('error', 'Kullanıcı bulunamadı.');
     }
+
 
 
     public function kategori()

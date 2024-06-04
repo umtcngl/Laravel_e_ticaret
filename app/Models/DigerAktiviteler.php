@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class KullaniciAktivite extends Model
+class DigerAktiviteler extends Model
 {
-    protected $table = 'kullanici_aktiviteleri';
+    protected $table = 'diger_aktiviteler';
 
     protected $fillable = [
-        'kullanici_id', 'urun_id', 'sayfa_url', 'sure_saniye',
+        'kullanici_id', 'urun_id', 'islem',
     ];
 
     public function kullanici()

@@ -11,6 +11,7 @@ use App\Models\Siparisler;
 use App\Models\Yorumlar;
 use App\Models\GecmisAlim;
 use Illuminate\Support\Facades\Auth;
+use App\Services\UrunOneriService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,10 +20,14 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
-    public function boot()
+    public function boot(UrunOneriService $urunOneriService)
     {
+        $urunOneriService->updateRecommendations();
+
         Carbon::setLocale('tr');
         Date::setLocale('tr');
+
+
         View::composer('layouts.satici', function ($view) {
             $kullanici = Auth::user();
 
@@ -77,4 +82,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
     }
+
+
 }

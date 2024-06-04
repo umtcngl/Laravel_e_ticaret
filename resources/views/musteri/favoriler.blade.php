@@ -13,6 +13,16 @@
         @foreach($favoriler as $favori)
         <div class="col-md-3 mb-4">
             <div class="card">
+                            <!-- Favori Ekle/Çıkar Formu -->
+            <form method="post" action="{{ route('favori.toggle', $favori->urun->id) }}">
+                @csrf
+                @php
+                    $favori = Auth::check() ? Auth::user()->favoriler()->where('urun_id', $favori->urun->id)->first() : null;
+                @endphp
+                <button type="submit" class="position-absolute top-0 start-0 btn btn-info p-2 mt-2" style="font-size:25px;color:#107df2;background-color: transparent; border: none;z-index:1">
+                    <i class="{{ $favori ? 'fas fa-star' : 'far fa-star' }}"></i>
+                </button>
+            </form>
                 <a href="{{ route('urun.detay', $favori->urun->id) }}" class="btn card-body text-center">
                     <img src="{{ asset($favori->urun->resim_yolu) }}" alt="{{ $favori->urun->urunAdi }}" class="img-fluid mb-2">
                     <h5 class="card-title">{{ $favori->urun->urunAdi }}</h5>

@@ -36,6 +36,10 @@ class Kullanici extends Authenticatable
         return $this->hasMany(KullaniciAktivite::class, 'kullanici_id');
     }
 
+    public function DigerAktiviteler()
+    {
+        return $this->hasMany(DigerAktiviteler::class, 'kullanici_id');
+    }
     public function sepet()
     {
         return $this->hasMany(Sepet::class, 'kullanici_id');
@@ -59,5 +63,20 @@ class Kullanici extends Authenticatable
     public function getAuthPassword()
     {
         return $this->sifre;
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($kullanici) {
+            $kullanici->favoriler()->delete();
+            $kullanici->gecmisAlimlar()->delete();
+            $kullanici->kullaniciAktiviteleri()->delete();
+            $kullanici->sepet()->delete();
+            $kullanici->siparisler()->delete();
+            $kullanici->yorumlar()->delete();
+            $kullanici->urunOnerileri()->delete();
+        });
     }
 }

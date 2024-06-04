@@ -42,6 +42,11 @@ class Urun extends Model
         return $this->hasMany(KullaniciAktivite::class, 'urun_id');
     }
 
+    public function DigerAktiviteler()
+    {
+        return $this->hasMany(DigerAktiviteler::class, 'urun_id');
+    }
+
     public function sepet()
     {
         return $this->hasMany(Sepet::class, 'urun_id');
