@@ -11,7 +11,6 @@ use App\Models\Siparisler;
 use App\Models\Yorumlar;
 use App\Models\GecmisAlim;
 use Illuminate\Support\Facades\Auth;
-use App\Services\UrunOneriService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,10 +19,8 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
-    public function boot(UrunOneriService $urunOneriService)
+    public function boot()
     {
-        $urunOneriService->updateRecommendations();
-
         Carbon::setLocale('tr');
         Date::setLocale('tr');
 

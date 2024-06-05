@@ -41,6 +41,7 @@ $favorisayisi = auth()->user()->favoriler()->count();
         @endif
         @endforeach
     </div>
+@if(!$onerilenler->isEmpty())
     <!-- Önerilenler -->
     <h2>Önerilenler</h2>
     <hr>
@@ -68,6 +69,7 @@ $favorisayisi = auth()->user()->favoriler()->count();
         </div>
     @endforeach
     </div>
+@endif
 
 
 

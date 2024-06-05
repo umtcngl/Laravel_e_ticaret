@@ -12,16 +12,30 @@ use App\Models\Sepet;
 use App\Models\Siparisler;
 use App\Models\Kullanici;
 use App\Models\Yorumlar;
-USE App\Models\GecmisAlim;
+use App\Models\GecmisAlim;
 use App\Models\Favori;
 use App\Models\KullaniciAktivite;
 use App\Models\DigerAktiviteler;
 use App\Models\UrunOneri;
+use App\Services\UrunOneriService;
+use Illuminate\Support\Facades\Cache;
+
 class MusteriController extends Controller
 {
-    public function anasayfa()
+    public function anasayfa(UrunOneriService $urunOneriService)
     {
+        // Önbellekte öneri güncelleme zamanını kontrol edin
+        $lastUpdated = Cache::get('recommendations_last_updated_' . Auth::id());
+
+        // Eğer son güncelleme 5 dakikadan eskiyse veya hiç yoksa önerileri güncelle
+        if (!$lastUpdated || $lastUpdated->diffInMinutes(now()) >= 1) {
+            $urunOneriService->updateRecommendations();
+            Cache::put('recommendations_last_updated_' . Auth::id(), now());
+        }
+
+        // Önerilen ürünleri alın
         $onerilenler = UrunOneri::with('urun')->get();
+
         // Kategorileri getir
         $kategoriler = Kategori::all();
 
@@ -30,33 +44,33 @@ class MusteriController extends Controller
 
         // Her bir ürün için en yüksek puanı alanları getir
         $enYuksekPuanAlanlar = Yorumlar::select('urun_id', \DB::raw('AVG(puan) as ortalama_puan, COUNT(*) as yorum_sayisi'))
-        ->groupBy('urun_id')
-        ->orderByRaw('AVG(puan) DESC')
-        ->take(4)
-        ->get();
+            ->groupBy('urun_id')
+            ->orderByRaw('AVG(puan) DESC')
+            ->take(4)
+            ->get();
 
-    // En çok satan ürünleri getir
-    $enCokSatanlar = GecmisAlim::select('urun_id', \DB::raw('COUNT(*) as alim_sayisi'))
-        ->groupBy('urun_id')
-        ->orderByRaw('COUNT(*) DESC')
-        ->take(4)
-        ->get();
+        // En çok satan ürünleri getir
+        $enCokSatanlar = GecmisAlim::select('urun_id', \DB::raw('COUNT(*) as alim_sayisi'))
+            ->groupBy('urun_id')
+            ->orderByRaw('COUNT(*) DESC')
+            ->take(4)
+            ->get();
 
-    // Her bir ürün için puanları ve sipariş edilme sayısını hesapla
-    $urunPuanlar = [];
-    $urunSiparisSayilari = [];
-    foreach ($urunler as $urun) {
-        // Ürünün aldığı puanları hesapla
-        $puanlar = $urun->yorumlar->pluck('puan')->toArray();
-        $toplamPuan = count($puanlar) > 0 ? array_sum($puanlar) : 0;
-        $ortalamaPuan = count($puanlar) > 0 ? $toplamPuan / count($puanlar) : 0;
-        $urunPuanlar[$urun->id] = $ortalamaPuan;
+        // Her bir ürün için puanları ve sipariş edilme sayısını hesapla
+        $urunPuanlar = [];
+        $urunSiparisSayilari = [];
+        foreach ($urunler as $urun) {
+            // Ürünün aldığı puanları hesapla
+            $puanlar = $urun->yorumlar->pluck('puan')->toArray();
+            $toplamPuan = count($puanlar) > 0 ? array_sum($puanlar) : 0;
+            $ortalamaPuan = count($puanlar) > 0 ? $toplamPuan / count($puanlar) : 0;
+            $urunPuanlar[$urun->id] = $ortalamaPuan;
 
-        // Ürünün sipariş edilme sayısını hesapla
-        $urunSiparisSayilari[$urun->id] = GecmisAlim::where('urun_id', $urun->id)->count();
-    }
+            // Ürünün sipariş edilme sayısını hesapla
+            $urunSiparisSayilari[$urun->id] = GecmisAlim::where('urun_id', $urun->id)->count();
+        }
 
-    return view('musteri.anasayfa', compact('kategoriler', 'urunler', 'enYuksekPuanAlanlar', 'enCokSatanlar', 'urunPuanlar', 'urunSiparisSayilari','onerilenler'));
+        return view('musteri.anasayfa', compact('kategoriler', 'urunler', 'enYuksekPuanAlanlar', 'enCokSatanlar', 'urunPuanlar', 'urunSiparisSayilari', 'onerilenler'));
     }
 
     public function kategoriDetay($id)
@@ -169,7 +183,7 @@ class MusteriController extends Controller
     {
         $request->validate([
             'icerik' => 'required|string|max:255', // Yorum içeriği doğrulama kuralı
-            'puan' => 'required|integer|min:0|max:10', // Puan doğrulama kuralı
+            'puan' => 'required|min:0|max:10', // Puan doğrulama kuralı
         ]);
 
         // Yorumu kaydet

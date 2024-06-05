@@ -1,4 +1,4 @@
-# Öneri sistemli E ticaret (bitmedi.)
+# Öneri sistemli E ticaret (az kaldı ,,,,, bitmedi.)
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 ![1](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/1.PNG)
@@ -8,3 +8,7 @@
 ![5](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/5.PNG)
 ![6](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/6.PNG)
 ![7](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/7.PNG)
+![8](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/8.PNG)
+![9](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/9.PNG)
+![10](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/10.PNG)
+![11](https://github.com/umtcngl/Laravel_e_ticaret/blob/main/11.PNG)

@@ -54,7 +54,7 @@
                     <div class="form-group">
                         <label for="puan">Puanınız</label>
                         <output class="ms-3 mb-3" id="selectedPuan">0</output>
-                        <input type="range" class="form-range" id="puan" name="puan" min="0" max="10" step="1" value="0">
+                        <input type="range" class="form-range" id="puan" name="puan" min="0" max="10" step="0.1" value="0">
                       </div>
                 </div>
                 <button type="submit" class="btn btn-outline-dark mt-4"><i class="fas fa-comment me-2"></i>Yorum Yap</button>
@@ -138,7 +138,7 @@
 @endif
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const puanSlider = document.getElementById('puan'); // Değiştirilen kısım
+      const puanSlider = document.getElementById('puan');
       const selectedPuan = document.getElementById('selectedPuan');
 
       puanSlider.addEventListener('input', function() {
