@@ -28,13 +28,13 @@ class MusteriController extends Controller
         $lastUpdated = Cache::get('recommendations_last_updated_' . Auth::id());
 
         // Eğer son güncelleme 5 dakikadan eskiyse veya hiç yoksa önerileri güncelle
-        if (!$lastUpdated || $lastUpdated->diffInMinutes(now()) >= 1) {
+        if (!$lastUpdated || $lastUpdated->diffInMinutes(now()) >= 5) {
             $urunOneriService->updateRecommendations();
             Cache::put('recommendations_last_updated_' . Auth::id(), now());
         }
 
         // Önerilen ürünleri alın
-        $onerilenler = UrunOneri::with('urun')->get();
+        $onerilenler = UrunOneri::with('urun')->where('kullanici_id', Auth::id())->get();
 
         // Kategorileri getir
         $kategoriler = Kategori::all();

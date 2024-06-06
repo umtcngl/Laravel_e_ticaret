@@ -184,8 +184,6 @@ class UrunOneriService
         foreach ($sepetSayilari as $urunID => $sepetSayisi) {
             if (isset($urunSkorlari[$urunID])) {
                 $urunSkorlari[$urunID] += 1;
-            } else {
-                // Eğer anahtar mevcut değilse, uygun bir işlem yapabilirsiniz
             }
         }
 
@@ -199,7 +197,7 @@ class UrunOneriService
         // En yüksek skorları olan ürünleri öneri listesine ekle
         foreach ($enYuksekUrunSkorlari as $urunId => $skor) {
 
-            if ($skor < 2) {
+            if ($skor < 3) {
                 continue;
             }
 
