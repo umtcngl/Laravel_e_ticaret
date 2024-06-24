@@ -4,6 +4,8 @@
 
 ### Kısaca projem local ortamda çalışan bir e ticaret uygulamasıdır.
 
+### Migrationları ve seeder ları çalıştırıp aynı uygulamayı kendi bilgisayarınızda çalıştırabilirsiniz. (Admin    admin123)
+
 ### Uygulamanın öne çıkan özelliklerinden birisi öneri sistemidir.
 
 ### Kullanıcının site içerisindeki etkileşim verilerini toplayarak bir öneri sunuyoruz.
